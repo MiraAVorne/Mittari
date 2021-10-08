@@ -1,0 +1,66 @@
+<html>
+
+<head>
+    <!--meta http-equiv="refresh" content="10"-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        async function drawChart() {
+
+            let url = 'https://api.thingspeak.com/channels/1526926/feeds.json?results=20';
+
+            const fetchResults = await fetch(url);
+            const jsonResults = await fetchResults.json();
+            const feedsResults = jsonResults.feeds;
+
+
+            let muokkaaRivit = [['Aika', 'Lämpötila']];
+            for (const i in feedsResults) {
+                muokkaaRivit.push([feedsResults[i].created_at, parseInt(feedsResults[i].field1.split('.')[0])])
+            }
+            document.getElementById("resultTable").innerHTML = muokkaaRivit;
+
+            var data = google.visualization.arrayToDataTable(muokkaaRivit);
+
+            var options = {
+                title: 'Lämpötila',
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
+
+            var data2 = google.visualization.arrayToDataTable([
+                ['Aika', 'Ilmankosteus'],
+                ['2004', 25],
+                ['2005', 34],
+                ['2006', 56],
+                ['2007', 76]
+            ]);
+
+            var options2 = {
+                title: 'Ilmankosteus',
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+            chart.draw(data, options);
+
+            var chart2 = new google.visualization.ColumnChart(document.getElementById('column_chart'));
+            chart2.draw(data2, options2);
+
+            setTimeout(function(){ drawChart(); }, 3000);
+            
+
+        }
+    </script>
+</head>
+
+<body>
+    <div id="resultTable"></div>
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+    <div id="column_chart" style="width: 900px; height: 500px"></div>
+</body>
+
+</html>
